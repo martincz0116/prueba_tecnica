@@ -1,6 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:prueba_tecnica/models/apo_list_model.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:prueba_tecnica/ui/color_palette.dart';
@@ -119,9 +118,14 @@ class ApiListBody extends StatelessWidget {
       ),
       child: CachedNetworkImage(
         imageUrl: url,
-        width: double.infinity,
-        height: double.infinity,
-        fit: BoxFit.fill,
+        imageBuilder: (context, imageProvider) => Image(
+          image: imageProvider,
+          width: double.infinity,
+          height: double.infinity,
+          fit: BoxFit.fill,
+        ),
+        memCacheHeight: 500,
+        memCacheWidth: 500,
         placeholder: (context, url) =>
             const Center(child: CircularProgressIndicator(color: textColor)),
         errorWidget: (context, url, error) =>

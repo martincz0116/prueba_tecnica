@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:prueba_tecnica/models/apo_list_model.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:prueba_tecnica/ui/color_palette.dart';
@@ -25,37 +26,57 @@ class ApiListBody extends StatelessWidget {
       itemCount: data.length,
       itemBuilder: (context, index) {
         String? url = setImgUrl(data[index].url, data[index].hdurl);
-        return _items(url, index);
+        return _items(url, index, context);
       },
     );
   }
 
-  Container _items(String? url, int index) {
-    return Container(
-      decoration: BoxDecoration(
-        boxShadow: [
-          BoxShadow(
-            color: accentColor.withValues(alpha: 0.3),
-            blurRadius: 8,
-            spreadRadius: 1,
-            offset: const Offset(3, 5),
+  Widget _items(String? url, int index, BuildContext context) {
+    return InkWell(
+      onTap: () {
+        Navigator.of(context).push(
+          MaterialPageRoute<void>(
+            builder: (BuildContext context) => Scaffold(
+              appBar: AppBar(title: const Text('Second Page')),
+              body: Center(
+                child: Hero(
+                  tag: index,
+                  child: url != null ? _img(url) : _imgNotFound(),
+                ),
+              ),
+            ),
           ),
-        ],
-      ),
-      child: Card(
-        elevation: 0,
-        color: primaryColor,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10.r),
-        ),
-        child: Column(
-          children: [
-            if (url != null && data[index].mediaType == 'image')
-              Expanded(flex: 2, child: _img(url)),
-            if (data[index].mediaType == 'video')
-              Expanded(flex: 2, child: _imgNotFound()),
-            Flexible(child: _imgTitle(index)),
-          ],
+        );
+      },
+      child: Hero(
+        tag: index,
+        child: Container(
+          decoration: BoxDecoration(
+            boxShadow: [
+              BoxShadow(
+                color: accentColor.withValues(alpha: 0.3),
+                blurRadius: 8,
+                spreadRadius: 1,
+                offset: const Offset(3, 5),
+              ),
+            ],
+          ),
+          child: Card(
+            elevation: 0,
+            color: primaryColor,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10.r),
+            ),
+            child: Column(
+              children: [
+                if (url != null && data[index].mediaType == 'image')
+                  Expanded(flex: 2, child: _img(url)),
+                if (data[index].mediaType == 'video')
+                  Expanded(flex: 2, child: _imgNotFound()),
+                Flexible(child: _imgTitle(index)),
+              ],
+            ),
+          ),
         ),
       ),
     );

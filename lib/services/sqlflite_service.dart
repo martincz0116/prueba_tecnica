@@ -1,9 +1,12 @@
+import 'dart:convert';
+
+import 'package:prueba_tecnica/models/apo_list_model.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 
 class SqlfliteService {
   late Database database;
-  
+
   Future<void> initDB() async {
     var databasesPath = await getDatabasesPath();
     String path = join(databasesPath, 'demo.db');
@@ -13,7 +16,7 @@ class SqlfliteService {
       onCreate: (Database db, int version) async {
         // When creating the db, create the table
         await db.execute(
-          'CREATE TABLE Test (id INTEGER PRIMARY KEY, name TEXT, value INTEGER, num REAL)',
+          'CREATE TABLE prefs (id INTEGER PRIMARY KEY AUTOINCREMENT, date DATETIME, explanation TEXT, media_type TEXT, service_version TEXT, title TEXT, url TEXT NULL, copyright TEXT NULL, hdurl TEXT NULL)',
         );
       },
     );
@@ -25,17 +28,10 @@ class SqlfliteService {
   }
 
   // Insert some records in a transaction
-  Future<void> insertInTransaction() async {
+  Future<void> insertInTransaction(ApodList data) async {
+    database = await openDatabase(join(await getDatabasesPath(), 'demo.db'));
     await database.transaction((txn) async {
-      int id1 = await txn.rawInsert(
-        'INSERT INTO Test(name, value, num) VALUES("some name", 1234, 456.789)',
-      );
-      print('inserted1: $id1');
-      int id2 = await txn.rawInsert(
-        'INSERT INTO Test(name, value, num) VALUES(?, ?, ?)',
-        ['another name', 12345678, 3.1416],
-      );
-      print('inserted2: $id2');
+      await txn.insert('prefs', data.toJson());
     });
   }
 
@@ -49,28 +45,39 @@ class SqlfliteService {
   }
 
   // Get the records
-  Future<void> getRecords() async {
-    List<Map> results = await database.query('Test', columns: ['id', 'name']);
-    assert(results.length == 2);
-    assert(results[0]['id'] == 1);
-    assert(results[0]['name'] == 'some name');
-    assert(results[1]['id'] == 2);
-    assert(results[1]['name'] == 'another name');
+  Future<List<ApodList>> getRecords() async {
+    List<Map> results = await database.query('prefs');
+    return apodListFromJson(json.encode(results));
   }
 
   // Count the records
-  Future<void> countRecords() async {
+  Future<int> countRecords() async {
     int count =
         Sqflite.firstIntValue(
-          await database.rawQuery('SELECT COUNT(*) FROM Test'),
+          await database.rawQuery('SELECT COUNT(*) FROM prefs'),
         ) ??
         0;
-    assert(count == 2);
+    assert(count >= 0);
+    return count;
+  }
+
+  //Check if exists an specific record
+  Future<bool> exists(DateTime date) async {
+    int count =
+        Sqflite.firstIntValue(
+          await database.query('prefs', where: 'date = ?', whereArgs: [date]),
+        ) ??
+        0;
+    return count == 1;
   }
 
   // Delete a record
-  Future<void> delete() async {
-    int count = await database.delete('Test', where: 'id = ?', whereArgs: [1]);
+  Future<void> delete(int id) async {
+    int count = await database.delete(
+      'prefs',
+      where: 'id = ?',
+      whereArgs: [id],
+    );
     assert(count == 1);
   }
 

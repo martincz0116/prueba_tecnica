@@ -7,9 +7,12 @@ import 'package:go_router/go_router.dart';
 import 'package:prueba_tecnica/screens/api_list/cubit/api_list_cubit.dart';
 import 'package:prueba_tecnica/screens/api_list_page.dart';
 import 'package:prueba_tecnica/services/service_locator.dart';
+import 'package:prueba_tecnica/services/sqlflite_service.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
   setupServiceLocator();
+  SqlfliteService().initDB();
   HttpOverrides.global = MyHttpOverrides();
   runApp(const MainApp());
 }

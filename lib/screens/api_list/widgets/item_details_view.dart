@@ -4,6 +4,7 @@ import 'package:gap/gap.dart';
 import 'package:intl/intl.dart';
 import 'package:prueba_tecnica/models/apo_list_model.dart';
 import 'package:prueba_tecnica/screens/api_list/helpers/api_list_helper.dart';
+import 'package:prueba_tecnica/services/sqlflite_service.dart';
 import 'package:prueba_tecnica/ui/color_palette.dart';
 import 'package:prueba_tecnica/ui/decorations.dart';
 import 'package:prueba_tecnica/widgets/img_not_found_widget.dart';
@@ -32,7 +33,9 @@ class ItemDetailsView extends StatelessWidget {
             IconButton(
               icon: const Icon(Icons.bookmark_outline),
               color: Colors.white,
-              onPressed: () {},
+              onPressed: () async {
+                await SqlfliteService().insertInTransaction(item);
+              },
             ),
           ],
         ),

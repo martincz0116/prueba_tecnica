@@ -1,16 +1,15 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:prueba_tecnica/models/apo_list_model.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:prueba_tecnica/screens/api_list/helpers/api_list_helper.dart';
+import 'package:prueba_tecnica/screens/api_list/widgets/item_details_view.dart';
 import 'package:prueba_tecnica/ui/color_palette.dart';
+import 'package:prueba_tecnica/widgets/Img_widget.dart';
+import 'package:prueba_tecnica/widgets/img_not_found_widget.dart';
 
 class ApiListBody extends StatelessWidget {
   const ApiListBody(this.data, {super.key});
   final List<ApodList> data;
-
-  String? setImgUrl(String? url, String? uhdUrl) {
-    return uhdUrl ?? url;
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -35,15 +34,7 @@ class ApiListBody extends StatelessWidget {
       onTap: () {
         Navigator.of(context).push(
           MaterialPageRoute<void>(
-            builder: (BuildContext context) => Scaffold(
-              appBar: AppBar(title: const Text('Second Page')),
-              body: Center(
-                child: Hero(
-                  tag: index,
-                  child: url != null ? _img(url) : _imgNotFound(),
-                ),
-              ),
-            ),
+            builder: (BuildContext context) => ItemDetailsView(index, data[index]),
           ),
         );
       },
@@ -69,9 +60,9 @@ class ApiListBody extends StatelessWidget {
             child: Column(
               children: [
                 if (url != null && data[index].mediaType == 'image')
-                  Expanded(flex: 2, child: _img(url)),
+                  Expanded(flex: 2, child: ImgWidget(url: url)),
                 if (data[index].mediaType == 'video')
-                  Expanded(flex: 2, child: _imgNotFound()),
+                  Expanded(flex: 2, child: ImgNotFoundWidget()),
                 Flexible(child: _imgTitle(index)),
               ],
             ),
@@ -102,34 +93,6 @@ class ApiListBody extends StatelessWidget {
         ),
         maxLines: 2,
         overflow: TextOverflow.ellipsis,
-      ),
-    );
-  }
-
-  FittedBox _imgNotFound() {
-    return FittedBox(child: Icon(Icons.hide_image_outlined, size: 100));
-  }
-
-  ClipRRect _img(String url) {
-    return ClipRRect(
-      borderRadius: BorderRadius.only(
-        topLeft: Radius.circular(10.r),
-        topRight: Radius.circular(10.r),
-      ),
-      child: CachedNetworkImage(
-        imageUrl: url,
-        imageBuilder: (context, imageProvider) => Image(
-          image: imageProvider,
-          width: double.infinity,
-          height: double.infinity,
-          fit: BoxFit.fill,
-        ),
-        memCacheHeight: 500,
-        memCacheWidth: 500,
-        placeholder: (context, url) =>
-            const Center(child: CircularProgressIndicator(color: textColor)),
-        errorWidget: (context, url, error) =>
-            const Icon(Icons.error_outline, color: Colors.red),
       ),
     );
   }

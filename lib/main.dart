@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
-import 'package:prueba_tecnica/pages/api_list/cubit/api_list_cubit.dart';
-import 'package:prueba_tecnica/pages/api_list_page.dart';
+import 'package:prueba_tecnica/screens/api_list/cubit/api_list_cubit.dart';
+import 'package:prueba_tecnica/screens/api_list_page.dart';
 import 'package:prueba_tecnica/services/service_locator.dart';
 
 void main() {

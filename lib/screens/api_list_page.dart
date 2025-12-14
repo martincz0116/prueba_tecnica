@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:prueba_tecnica/cubit/generic_state.dart';
 import 'package:prueba_tecnica/models/apo_list_model.dart';
-import 'package:prueba_tecnica/pages/api_list/widgets/api_list_body.dart';
+import 'package:prueba_tecnica/screens/api_list/widgets/api_list_body.dart';
 import 'package:prueba_tecnica/ui/color_palette.dart';
 import 'api_list/cubit/api_list_cubit.dart';
 

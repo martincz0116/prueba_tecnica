@@ -18,6 +18,7 @@ class ItemDetailsView extends StatelessWidget {
     text: item.title,
   );
   late final String? url = setImgUrl(item.url, item.hdurl);
+  final ValueNotifier<bool> _isFavorite = ValueNotifier<bool>(false);
 
   @override
   Widget build(BuildContext context) {
@@ -30,11 +31,36 @@ class ItemDetailsView extends StatelessWidget {
           backgroundColor: Colors.transparent,
           leading: BackButton(color: Colors.white),
           actions: [
-            IconButton(
-              icon: const Icon(Icons.bookmark_outline),
-              color: Colors.white,
-              onPressed: () async {
-                await SqlfliteService().insertInTransaction(item);
+            FutureBuilder(
+              future: SqlfliteService().exists(item.date),
+              builder: (context, asyncSnapshot) {
+                if (asyncSnapshot.connectionState == ConnectionState.waiting) {
+                  return const CircularProgressIndicator(color: Colors.white);
+                }
+
+                if (asyncSnapshot.hasData) {
+                  _isFavorite.value = asyncSnapshot.data!;
+                }
+
+                return ValueListenableBuilder<bool>(
+                  valueListenable: _isFavorite,
+                  builder: (context, value, child) => IconButton(
+                    icon: Icon(
+                      value ? Icons.bookmark : Icons.bookmark_outline,
+                      color: Colors.white,
+                    ),
+                    onPressed: () async {
+                      if (value) {
+                        await SqlfliteService().deleteRecord(item.date);
+                      } else {
+                        await SqlfliteService().insertInTransaction(
+                          item.copyWith(title: controller.text),
+                        );
+                      }
+                      _isFavorite.value = !_isFavorite.value;
+                    },
+                  ),
+                );
               },
             ),
           ],

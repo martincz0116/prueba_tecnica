@@ -5,7 +5,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prueba_tecnica/screens/api_list/cubit/api_list_cubit.dart';
-import 'package:prueba_tecnica/screens/api_list_page.dart';
+import 'package:prueba_tecnica/screens/api_list/api_list_page.dart';
+import 'package:prueba_tecnica/screens/prefs/prefs_page.dart';
 import 'package:prueba_tecnica/services/service_locator.dart';
 import 'package:prueba_tecnica/services/sqlflite_service.dart';
 
@@ -21,8 +22,32 @@ final GoRouter _router = GoRouter(
   routes: [
     GoRoute(
       path: '/api-list',
-      builder: (context, state) {
-        return const ApiListPage();
+      pageBuilder: (context, state) {
+        return CustomTransitionPage(
+          child: const ApiListPage(),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) =>
+              FadeTransition(
+                opacity: CurveTween(
+                  curve: Curves.easeInOutCirc,
+                ).animate(animation),
+                child: child,
+              ),
+        );
+      },
+    ),
+    GoRoute(
+      path: '/prefs',
+      pageBuilder: (context, state) {
+        return CustomTransitionPage(
+          child: const PrefsPage(),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) =>
+              FadeTransition(
+                opacity: CurveTween(
+                  curve: Curves.easeInOutCirc,
+                ).animate(animation),
+                child: child,
+              ),
+        );
       },
     ),
   ],

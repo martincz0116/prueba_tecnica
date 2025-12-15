@@ -1,16 +1,24 @@
 import 'dart:convert';
-
 import 'package:prueba_tecnica/models/apo_list_model.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:path/path.dart';
+import 'package:path/path.dart' as p;
 
 class SqlfliteService {
-  late Database database;
+  static final SqlfliteService _instance = SqlfliteService._internal();
+  factory SqlfliteService() => _instance;
+  static Database? _database;
 
-  Future<void> initDB() async {
+  SqlfliteService._internal();
+
+  Future<Database> get database async {
+    _database ??= await initDB();
+    return _database!;
+  }
+
+  Future<Database> initDB() async {
     var databasesPath = await getDatabasesPath();
-    String path = join(databasesPath, 'demo.db');
-    database = await openDatabase(
+    String path = p.join(databasesPath, 'demo.db');
+    return await openDatabase(
       path,
       version: 1,
       onCreate: (Database db, int version) async {
@@ -29,32 +37,35 @@ class SqlfliteService {
 
   // Insert some records in a transaction
   Future<void> insertInTransaction(ApodList data) async {
-    database = await openDatabase(join(await getDatabasesPath(), 'demo.db'));
-    await database.transaction((txn) async {
+    final db = await database;
+    await db.transaction((txn) async {
       await txn.insert('prefs', data.toJson());
     });
   }
 
-  // Update some record
-  Future<void> update() async {
-    int count = await database.rawUpdate(
-      'UPDATE Test SET name = ?, value = ?, num = ? WHERE id = ?',
-      ['updated name', 9876, 456.789, 1],
+  //Delete record
+  Future<void> deleteRecord(DateTime date) async {
+    final db = await database;
+    await db.delete(
+      'prefs',
+      where: 'date = ?',
+      whereArgs: [date.toIso8601String().substring(0, 10)],
     );
-    assert(count == 1);
   }
 
   // Get the records
   Future<List<ApodList>> getRecords() async {
-    List<Map> results = await database.query('prefs');
+    final db = await database;
+    List<Map> results = await db.query('prefs');
     return apodListFromJson(json.encode(results));
   }
 
   // Count the records
   Future<int> countRecords() async {
+    final db = await database;
     int count =
         Sqflite.firstIntValue(
-          await database.rawQuery('SELECT COUNT(*) FROM prefs'),
+          await db.rawQuery('SELECT COUNT(*) FROM prefs'),
         ) ??
         0;
     assert(count >= 0);
@@ -63,26 +74,29 @@ class SqlfliteService {
 
   //Check if exists an specific record
   Future<bool> exists(DateTime date) async {
+    final db = await database;
     int count =
         Sqflite.firstIntValue(
-          await database.query('prefs', where: 'date = ?', whereArgs: [date]),
+          await db.query(
+            'prefs',
+            where: 'date = ?',
+            whereArgs: [date.toIso8601String().substring(0, 10)],
+          ),
         ) ??
         0;
-    return count == 1;
+    return count >= 1;
   }
 
   // Delete a record
   Future<void> delete(int id) async {
-    int count = await database.delete(
-      'prefs',
-      where: 'id = ?',
-      whereArgs: [id],
-    );
+    final db = await database;
+    int count = await db.delete('prefs', where: 'id = ?', whereArgs: [id]);
     assert(count == 1);
   }
 
   // Close the database
   Future<void> close() async {
-    await database.close();
+    final db = await database;
+    await db.close();
   }
 }

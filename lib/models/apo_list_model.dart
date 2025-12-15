@@ -27,6 +27,26 @@ class ApodList {
     this.hdurl,
   });
 
+  ApodList copyWith({
+    DateTime? date,
+    String? explanation,
+    String? mediaType,
+    String? serviceVersion,
+    String? title,
+    String? url,
+    String? copyright,
+    String? hdurl,
+  }) => ApodList(
+    date: date ?? this.date,
+    explanation: explanation ?? this.explanation,
+    mediaType: mediaType ?? this.mediaType,
+    serviceVersion: serviceVersion ?? this.serviceVersion,
+    title: title ?? this.title,
+    url: url ?? this.url,
+    copyright: copyright ?? this.copyright,
+    hdurl: hdurl ?? this.hdurl,
+  );
+
   factory ApodList.fromJson(Map<String, dynamic> json) => ApodList(
     date: DateTime.parse(json["date"]),
     explanation: json["explanation"],
